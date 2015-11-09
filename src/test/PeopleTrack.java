@@ -36,12 +36,17 @@ class PeopleTrack {
 
 		for (MatOfRect selectedDetection : previousDetections) {
 			List<Rect> rectList = selectedDetection.toList();
+			int i = 0;
+			
 			for (Rect previousPerson : rectList) {
 				if (isNear(person, previousPerson, 1)) {
 					result = false;
-					rectList.remove(previousPerson);
+//					rectList.remove(rectList.get(i));
 					break;
+				} else {
+					i++;					
 				}
+
 			}
 		}
 

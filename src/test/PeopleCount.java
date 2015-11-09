@@ -159,7 +159,7 @@ final class PeopleCount {
 
 			Imgproc.putText(mat,
 					String.format("People counted : %d", soldePersons),
-					fontPoint, Core.FONT_HERSHEY_PLAIN, 0.8, fontColor, 2,
+					fontPoint, Core.FONT_HERSHEY_PLAIN, 1, fontColor, 2,
 					Core.LINE_AA, false);
 
 			previousDetections.queue(new MatOfRect(foundPersons));
