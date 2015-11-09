@@ -1,8 +1,10 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
@@ -13,11 +15,13 @@ class PeopleTrack {
 	@SuppressWarnings("unchecked")
 	public static int countNewPersons(MatOfRect currentDetection,
 			HeapList<MatOfRect> previousDetections, MatOfRect facesDetection) {
+
 		int counter = 0;
+		HeapList<MatOfRect> previousDetectionsClone = (HeapList<MatOfRect>) previousDetections
+				.clone();
 
 		for (Rect person : currentDetection.toList()) {
-			if (isNewPerson(person,
-					(HeapList<MatOfRect>) previousDetections.clone())) {
+			if (isNewPerson(person, previousDetectionsClone)) {
 				if (personHasFace(person, facesDetection)) {
 					counter--;
 				} else {
@@ -34,14 +38,20 @@ class PeopleTrack {
 			HeapList<MatOfRect> previousDetections) {
 		boolean result = true;
 
-		for (MatOfRect selectedDetection : previousDetections) {
+		for (MatOfRect selectedDetection : previousDetections) {			
 			List<Rect> rectList = selectedDetection.toList();
 			int i = 0;
+			Iterator<Rect> rectListIterator = rectList.iterator();
+			Rect previousPerson = new Rect();
 			
-			for (Rect previousPerson : rectList) {
+			while (rectListIterator.hasNext()) {
+				previousPerson = rectListIterator.next();
 				if (isNear(person, previousPerson, 1)) {
 					result = false;
-//					rectList.remove(rectList.get(i));
+					
+					Mat rowRemover = Mat.eye(i,i, 1);
+					
+					rectList.remove(previousPerson);
 					break;
 				} else {
 					i++;					
@@ -75,29 +85,29 @@ class PeopleTrack {
 	}
 
 	private static boolean personHasFace(Rect person, MatOfRect facesDetected) {
-		double valsOrigin[] = {0,0};
-		double valsEnd[] = {0,0};
-		
+		double valsOrigin[] = { 0, 0 };
+		double valsEnd[] = { 0, 0 };
+
 		Point origin = new Point();
 		Point end = new Point();
-		
+
 		for (Rect face : facesDetected.toList()) {
 			valsOrigin[0] = face.x;
 			valsOrigin[1] = face.y;
-			
+
 			valsEnd[0] = face.x + face.width;
 			valsEnd[1] = face.y + face.height;
-			
+
 			origin.set(valsOrigin);
 			end.set(valsEnd);
-			
+
 			if (origin.inside(person) && end.inside(person)) {
+				System.out.println("plop");
 				facesDetected.toList().remove(face);
 			}
-			
+
 		}
-		
-		
+
 		return false;
 	}
 }

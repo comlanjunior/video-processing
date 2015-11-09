@@ -106,7 +106,7 @@ final class PeopleCount {
 		final Scalar fontColor = new Scalar(255, 255, 255);
 
 		// Algorithm variables
-		HeapList<MatOfRect> previousDetections = new HeapList<MatOfRect>(2);
+		HeapList<MatOfRect> previousDetections = new HeapList<MatOfRect>(3);
 		int framesNoPeople = 0;
 		int soldePersons = 0;
 		int faces = 0;
