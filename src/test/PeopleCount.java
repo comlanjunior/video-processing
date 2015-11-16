@@ -1,7 +1,7 @@
 package test;
 
 import java.io.IOException;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -94,7 +94,6 @@ final class PeopleCount {
 		final Point rectPoint2 = new Point();
 		final Point fontPoint = new Point(24, 24);
 
-		
 		// Preliminaries for faces detection
 		CascadeClassifier faceDetector = new CascadeClassifier(
 				"/home/bwhisp/Resource/haarcascade.xml");
@@ -106,11 +105,8 @@ final class PeopleCount {
 		final Scalar fontColor = new Scalar(255, 255, 255);
 
 		// Algorithm variables
-		HeapList<MatOfRect> previousDetections = new HeapList<MatOfRect>(3);
-		int framesNoPeople = 0;
+		HeapList<MatOfRect> previousDetections = new HeapList<MatOfRect>(5);
 		int soldePersons = 0;
-		int faces = 0;
-		int persons = 0;
 
 		while (videoCapture.read(mat)) {
 
@@ -128,7 +124,7 @@ final class PeopleCount {
 				// }
 				// framesNoPeople = 0;
 
-				List<Double> weightList = foundWeights.toList();
+				// List<Double> weightList = foundWeights.toList();
 				List<Rect> rectList = foundPersons.toList();
 
 				for (Rect rect : rectList) { // Draws rectangles around people

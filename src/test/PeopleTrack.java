@@ -1,33 +1,34 @@
 package test;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedList;
 
-import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
-import org.opencv.core.Size;
 import org.opencv.core.Point;
 
 class PeopleTrack {
 
-	@SuppressWarnings("unchecked")
 	public static int countNewPersons(MatOfRect currentDetection,
 			HeapList<MatOfRect> previousDetections, MatOfRect facesDetection) {
 
 		int counter = 0;
-		HeapList<MatOfRect> previousDetectionsClone = (HeapList<MatOfRect>) previousDetections
-				.clone();
+//		HeapList<MatOfRect> previousDetectionsClone = (HeapList<MatOfRect>) previousDetections
+//				.clone();
+		HeapList<LinkedList <Rect>> previousDetectionsClone = new HeapList<LinkedList <Rect>>(previousDetections.size());
+		
+		for (MatOfRect detection : previousDetections) {
+			previousDetectionsClone.add(new LinkedList <Rect> (detection.toList()));
+		}
+		LinkedList <Rect> faceDetectionClone = new LinkedList<Rect>(facesDetection.toList());
 
 		for (Rect person : currentDetection.toList()) {
 			if (isNewPerson(person, previousDetectionsClone)) {
-				if (personHasFace(person, facesDetection)) {
+				if (personHasFace(person, faceDetectionClone)) {
 					counter--;
 				} else {
 					counter++;
 				}
-
 			}
 		}
 
@@ -35,40 +36,34 @@ class PeopleTrack {
 	}
 
 	public static boolean isNewPerson(Rect person,
-			HeapList<MatOfRect> previousDetections) {
+			HeapList<LinkedList<Rect>> previousDetectionsClone) {
 		boolean result = true;
 
-		for (MatOfRect selectedDetection : previousDetections) {			
-			List<Rect> rectList = selectedDetection.toList();
-			int i = 0;
+		for (LinkedList<Rect> rectList : previousDetectionsClone) {
+			
 			Iterator<Rect> rectListIterator = rectList.iterator();
 			Rect previousPerson = new Rect();
 			
 			while (rectListIterator.hasNext()) {
 				previousPerson = rectListIterator.next();
-				if (isNear(person, previousPerson, 1)) {
-					result = false;
-					
-					Mat rowRemover = Mat.eye(i,i, 1);
-					
+				if (isNear(person, previousPerson, 1.5)) {
+					result = false;					
 					rectList.remove(previousPerson);
 					break;
-				} else {
-					i++;					
 				}
-
 			}
+			
 		}
 
 		return result;
 	}
 
 	private static boolean isNear(Rect person, Rect previousPerson, double ratio) {
-		Point personCenter = new Point(person.x + person.width / 2, person.y
-				+ person.height / 2);
+		Point personCenter = new Point(person.x + (person.width / 2), person.y
+				+ (person.height / 2));
 		Point previousCenter = new Point(previousPerson.x
-				+ previousPerson.width / 2, previousPerson.y
-				+ previousPerson.height / 2);
+				+ (previousPerson.width / 2), previousPerson.y
+				+ (previousPerson.height / 2));
 
 		Point maxAllowed = new Point(ratio
 				* (person.width + previousPerson.width) / 2, ratio
@@ -84,14 +79,19 @@ class PeopleTrack {
 		return false;
 	}
 
-	private static boolean personHasFace(Rect person, MatOfRect facesDetected) {
+	private static boolean personHasFace(Rect person, LinkedList<Rect> faceList) {
 		double valsOrigin[] = { 0, 0 };
 		double valsEnd[] = { 0, 0 };
 
 		Point origin = new Point();
 		Point end = new Point();
 
-		for (Rect face : facesDetected.toList()) {
+		Iterator<Rect> faceListIterator = faceList.iterator();
+		Rect face = new Rect();
+		
+		while (faceListIterator.hasNext() ) {
+			face  = faceListIterator.next();
+			
 			valsOrigin[0] = face.x;
 			valsOrigin[1] = face.y;
 
@@ -103,7 +103,7 @@ class PeopleTrack {
 
 			if (origin.inside(person) && end.inside(person)) {
 				System.out.println("plop");
-				facesDetected.toList().remove(face);
+				faceList.remove(face);
 			}
 
 		}
