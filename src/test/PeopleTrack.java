@@ -13,8 +13,6 @@ class PeopleTrack {
 			HeapList<MatOfRect> previousDetections, MatOfRect facesDetection) {
 
 		int counter = 0;
-//		HeapList<MatOfRect> previousDetectionsClone = (HeapList<MatOfRect>) previousDetections
-//				.clone();
 		HeapList<LinkedList <Rect>> previousDetectionsClone = new HeapList<LinkedList <Rect>>(previousDetections.size());
 		
 		for (MatOfRect detection : previousDetections) {

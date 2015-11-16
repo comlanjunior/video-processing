@@ -23,6 +23,12 @@ import org.opencv.videoio.VideoWriter;
 import org.opencv.videoio.Videoio;
 import org.opencv.objdetect.CascadeClassifier;
 
+import org.json.simple.JSONObject;
+
+import jcuda.*;
+import jcuda.runtime.*;
+
+
 import test.PeopleTrack;
 
 final class PeopleCount {
@@ -113,18 +119,21 @@ final class PeopleCount {
 			// Persons detection
 			hog.detectMultiScale(mat, foundPersons, foundWeights, 0.0,
 					winStride, padding, 1.05, 2.0, false);
-
+		
+			/**
+			 * For Héloïse
+			 */
+			JSONObject obj = new JSONObject();
+			obj.put("persons", foundPersons.toList());
+			System.out.println(obj);
+			
+			
 			// Faces detection
 			faceDetector.detectMultiScale(mat, foundFaces);
 
 			if (foundPersons.rows() > 0) {
+				
 
-				// if (framesNoPeople > 2) {
-				// soldePersons++;
-				// }
-				// framesNoPeople = 0;
-
-				// List<Double> weightList = foundWeights.toList();
 				List<Rect> rectList = foundPersons.toList();
 
 				for (Rect rect : rectList) { // Draws rectangles around people
@@ -138,6 +147,8 @@ final class PeopleCount {
 				}
 				soldePersons += PeopleTrack.countNewPersons(foundPersons,
 						previousDetections, foundFaces);
+				
+				
 
 				for (Rect rect : foundFaces.toArray()) {
 					// Draw rectangles around faces
