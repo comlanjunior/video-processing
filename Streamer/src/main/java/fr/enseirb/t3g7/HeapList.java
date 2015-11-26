@@ -1,4 +1,4 @@
-package test;
+package fr.enseirb.t3g7;
 
 import java.util.ArrayList;
 
