@@ -108,73 +108,74 @@ final class PeopleCount {
 		// Algorithm variables
 		HeapList<MatOfRect> previousDetections = new HeapList<MatOfRect>(5);
 		int soldePersons = 0;
+		try
+		{
+		    FileWriter fw = new FileWriter (f);
+			while (videoCapture.read(mat)) {
 
-		while (videoCapture.read(mat)) {
+				// Persons detection
+				hog.detectMultiScale(mat, foundPersons, foundWeights, 0.0,
+						winStride, padding, 1.05, 2.0, false);
 
-			// Persons detection
-			hog.detectMultiScale(mat, foundPersons, foundWeights, 0.0,
-					winStride, padding, 1.05, 2.0, false);
-
-			// Faces detection
-			faceDetector.detectMultiScale(mat, foundFaces);
+				// Faces detection
+				faceDetector.detectMultiScale(mat, foundFaces);
 
 
-				// if (framesNoPeople > 2) {
-				// soldePersons++;
-				// }
-				// framesNoPeople = 0;
+					// if (framesNoPeople > 2) {
+					// soldePersons++;
+					// }
+					// framesNoPeople = 0;
 
-				// List<Double> weightList = foundWeights.toList();
-			List<Rect> rectList = foundPersons.toList();
+					// List<Double> weightList = foundWeights.toList();
+				List<Rect> rectList = foundPersons.toList();
 
-			for (Rect rect : rectList) { // Draws rectangles around people
-				rectPoint1.x = rect.x;
-				rectPoint1.y = rect.y;
-				rectPoint2.x = rect.x + rect.width;
-				rectPoint2.y = rect.y + rect.height;
-				// Draw rectangle around fond object
-				Imgproc.rectangle(mat, rectPoint1, rectPoint2, rectColor, 2);
-				// CHECKSTYLE:ON MagicNumber
+				for (Rect rect : rectList) { // Draws rectangles around people
+					rectPoint1.x = rect.x;
+					rectPoint1.y = rect.y;
+					rectPoint2.x = rect.x + rect.width;
+					rectPoint2.y = rect.y + rect.height;
+					// Draw rectangle around fond object
+					Imgproc.rectangle(mat, rectPoint1, rectPoint2, rectColor, 2);
+					// CHECKSTYLE:ON MagicNumber
+				}
+
+
+				int pt = PeopleTrack.countNewPersons(foundPersons,
+						previousDetections, foundFaces);
+
+
+		 
+		    	fw.write("1,")
+		        fw.write (String.valueOf (pt));
+		        fw.write ("\n");
+				
+
+				for (Rect rect : foundFaces.toArray()) {
+					// Draw rectangles around faces
+					rectPoint1.x = rect.x;
+					rectPoint1.y = rect.y;
+					rectPoint2.x = rect.x + rect.width;
+					rectPoint2.y = rect.y + rect.height;
+
+					Imgproc.rectangle(mat, rectPoint1, rectPoint2, faceColor);
+				}
+
+		
+
+				Imgproc.putText(mat,
+						String.format("People counted : %d", soldePersons),
+						fontPoint, Core.FONT_HERSHEY_PLAIN, 1, fontColor, 2,
+						Core.LINE_AA, false);
+
+				previousDetections.queue(new MatOfRect(foundPersons));
+				videoWriter.write(mat);
 			}
-
-
-			int pt = PeopleTrack.countNewPersons(foundPersons,
-					previousDetections, foundFaces);
-
-			try
-			{
-			    FileWriter fw = new FileWriter (f);
-			 
-			    	fw.write("1,")
-			        fw.write (String.valueOf (pt));
-			        fw.write ("\n");
-			 
-			    fw.close();
-			}
-			catch (IOException exception)
-			{
-			    System.out.println ("Erreur lors de la lecture : " + exception.getMessage());
-			}
-
-			for (Rect rect : foundFaces.toArray()) {
-				// Draw rectangles around faces
-				rectPoint1.x = rect.x;
-				rectPoint1.y = rect.y;
-				rectPoint2.x = rect.x + rect.width;
-				rectPoint2.y = rect.y + rect.height;
-
-				Imgproc.rectangle(mat, rectPoint1, rectPoint2, faceColor);
-			}
-
-	
-
-			Imgproc.putText(mat,
-					String.format("People counted : %d", soldePersons),
-					fontPoint, Core.FONT_HERSHEY_PLAIN, 1, fontColor, 2,
-					Core.LINE_AA, false);
-
-			previousDetections.queue(new MatOfRect(foundPersons));
-			videoWriter.write(mat);
+			
+		    fw.close();
+		}
+		catch (IOException exception)
+		{
+		    System.out.println ("Erreur lors de la lecture : " + exception.getMessage());
 		}
 		// CHECKSTYLE:ON MagicNumber
 
