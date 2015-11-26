@@ -54,6 +54,7 @@ final class PeopleCount {
 	 */
 
 	public static void detect(String url, final String outputFile) {
+		File f = new File ("/home/bwhisp/Resource/persons.txt"); 
 		// Custom logging properties via class loader
 		try {
 			LogManager.getLogManager().readConfiguration(
@@ -117,7 +118,6 @@ final class PeopleCount {
 			// Faces detection
 			faceDetector.detectMultiScale(mat, foundFaces);
 
-			if (foundPersons.rows() > 0) {
 
 				// if (framesNoPeople > 2) {
 				// soldePersons++;
@@ -125,33 +125,48 @@ final class PeopleCount {
 				// framesNoPeople = 0;
 
 				// List<Double> weightList = foundWeights.toList();
-				List<Rect> rectList = foundPersons.toList();
+			List<Rect> rectList = foundPersons.toList();
 
-				for (Rect rect : rectList) { // Draws rectangles around people
-					rectPoint1.x = rect.x;
-					rectPoint1.y = rect.y;
-					rectPoint2.x = rect.x + rect.width;
-					rectPoint2.y = rect.y + rect.height;
-					// Draw rectangle around fond object
-					Imgproc.rectangle(mat, rectPoint1, rectPoint2, rectColor, 2);
-					// CHECKSTYLE:ON MagicNumber
-				}
-				soldePersons += PeopleTrack.countNewPersons(foundPersons,
-						previousDetections, foundFaces);
-
-				for (Rect rect : foundFaces.toArray()) {
-					// Draw rectangles around faces
-					rectPoint1.x = rect.x;
-					rectPoint1.y = rect.y;
-					rectPoint2.x = rect.x + rect.width;
-					rectPoint2.y = rect.y + rect.height;
-
-					Imgproc.rectangle(mat, rectPoint1, rectPoint2, faceColor);
-				}
-
-			} else {
-				// framesNoPeople++;
+			for (Rect rect : rectList) { // Draws rectangles around people
+				rectPoint1.x = rect.x;
+				rectPoint1.y = rect.y;
+				rectPoint2.x = rect.x + rect.width;
+				rectPoint2.y = rect.y + rect.height;
+				// Draw rectangle around fond object
+				Imgproc.rectangle(mat, rectPoint1, rectPoint2, rectColor, 2);
+				// CHECKSTYLE:ON MagicNumber
 			}
+
+
+			int pt = PeopleTrack.countNewPersons(foundPersons,
+					previousDetections, foundFaces);
+
+			try
+			{
+			    FileWriter fw = new FileWriter (f);
+			 
+			    	fw.write("1,")
+			        fw.write (String.valueOf (pt));
+			        fw.write ("\n");
+			 
+			    fw.close();
+			}
+			catch (IOException exception)
+			{
+			    System.out.println ("Erreur lors de la lecture : " + exception.getMessage());
+			}
+
+			for (Rect rect : foundFaces.toArray()) {
+				// Draw rectangles around faces
+				rectPoint1.x = rect.x;
+				rectPoint1.y = rect.y;
+				rectPoint2.x = rect.x + rect.width;
+				rectPoint2.y = rect.y + rect.height;
+
+				Imgproc.rectangle(mat, rectPoint1, rectPoint2, faceColor);
+			}
+
+	
 
 			Imgproc.putText(mat,
 					String.format("People counted : %d", soldePersons),
