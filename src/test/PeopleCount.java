@@ -1,7 +1,8 @@
 package test;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -17,13 +18,11 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.HOGDescriptor;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.VideoWriter;
 import org.opencv.videoio.Videoio;
-import org.opencv.objdetect.CascadeClassifier;
-
-import test.PeopleTrack;
 
 final class PeopleCount {
 
@@ -120,13 +119,6 @@ final class PeopleCount {
 				// Faces detection
 				faceDetector.detectMultiScale(mat, foundFaces);
 
-
-					// if (framesNoPeople > 2) {
-					// soldePersons++;
-					// }
-					// framesNoPeople = 0;
-
-					// List<Double> weightList = foundWeights.toList();
 				List<Rect> rectList = foundPersons.toList();
 
 				for (Rect rect : rectList) { // Draws rectangles around people
@@ -142,12 +134,14 @@ final class PeopleCount {
 
 				int pt = PeopleTrack.countNewPersons(foundPersons,
 						previousDetections, foundFaces);
+				soldePersons += pt;
 
 
-		 
-		    	fw.write("1,")
-		        fw.write (String.valueOf (pt));
-		        fw.write ("\n");
+				if (pt != 0){
+			    	fw.write("1,");
+			        fw.write (String.valueOf (pt));
+			        fw.write ("\n");					
+				}
 				
 
 				for (Rect rect : foundFaces.toArray()) {
